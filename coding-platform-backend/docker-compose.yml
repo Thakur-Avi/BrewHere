@@ -17,21 +17,21 @@ services:
       - ./code:/app
     command: ["bash", "-c", "g++ /app/code.cpp -o /app/code && /app/code"]
 
-  # python-executor:
-  #   build:
-  #     context: .
-  #     dockerfile: ./docker/Dockerfile.python
-  #   volumes:
-  #     - ./code:/app
-  #   command: ["python3", "/app/code.py"]
+  python-executor:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.python
+    volumes:
+      - ./code:/app
+    command: ["python3", "/app/code.py"]
 
-  # java-executor:
-  #   build:
-  #     context: .
-  #     dockerfile: ./docker/Dockerfile.java
-  #   volumes:
-  #     - ./code:/app
-  #   command: ["java", "/app/Code"]
+  java-executor:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.java
+    volumes:
+      - ./code:/app
+    command: ["java", "/app/Code"]
 
 volumes:
   mongo-data:

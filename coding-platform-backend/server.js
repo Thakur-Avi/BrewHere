@@ -5,9 +5,10 @@ const cors = require('cors');
 const logger = require('./middlewares/logger');
 const errorHandler = require('./middlewares/errorHandler');
 const rateLimiter = require('./middlewares/rateLimiter');
-const authenticateJWT = require('./utils/auth').authenticateJWT;
-const { generateToken } = require('./utils/auth');
+// const authenticateJWT = require('./utils/auth').authenticateJWT;
 const codeRoutes = require('./routes/codeRoutes');
+const authRoutes = require('./routes/authRoutes');
+const contestRoutes = require('./routes/contestRoutes');
 
 // Load environment variables from .env file
 dotenv.config();
@@ -29,10 +30,6 @@ app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
-// Import routes
-const authRoutes = require('./routes/authRoutes');
-const contestRoutes = require('./routes/contestRoutes');
-
 // Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/contests', contestRoutes);
@@ -40,15 +37,9 @@ app.use('/api/code', codeRoutes);
 
 // Error Handling
 app.use(errorHandler);
-console.log('123');
-generateToken()
 
 // Define port
 const PORT = process.env.PORT || 5000;
-
-app.get('/', (req, res) => {
-    res.send('API is running...');
-});
 
 // Start the server
 app.listen(PORT, () => {

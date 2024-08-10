@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const codeController = require('../controllers/codeController');
-const authenticateJWT = require('../utils/auth'); // Update the path if necessary
+const { authenticateJWT } = require('../utils/auth');
+const sanitizeCode = require('../middlewares/sanitizeCode');
 
-// Route to submit code for execution
-router.post('/submit', authenticateJWT, codeController.submitCode);
+router.post('/submit', authenticateJWT, sanitizeCode, codeController.submitCode);
 
 module.exports = router;
