@@ -26,15 +26,15 @@ exports.submitCode = async (req, res) => {
         const containerConfigs = {
             cpp: {
                 image: 'coding-platform-backend-cpp-executor',
-                command: ['bash', '-c', 'g++ /app/code.cpp -o /app/code && /app/code']
+                command: 'g++ /app/code.cpp -o /app/code && /app/code'
             },
             py: {
                 image: 'coding-platform-backend-python-executor',
-                command: ['python3', '/app/code.py']
+                command: 'python3 /app/code.py'
             },
             java: {
                 image: 'coding-platform-backend-java-executor',
-                command: ['bash', '-c', 'javac /app/code.java && java -cp /app $(basename /app/code.java .java)']
+                command: 'javac /app/code.java && java -cp /app $(basename /app/code.java .java)'
             }
         };
 
@@ -47,7 +47,7 @@ exports.submitCode = async (req, res) => {
         try {
             const container = await docker.createContainer({
                 Image: config.image,
-                Cmd: config.command,
+                Cmd: [config.command],
                 Tty: false,
                 Volumes: { '/app': {} },
                 HostConfig: {
@@ -55,12 +55,32 @@ exports.submitCode = async (req, res) => {
                 }
             });
 
+            // Record the start time
+            const startTime = Date.now();
+
             await container.start();
 
             // Wait for container to finish execution
-            await container.wait();
-            const logs = await container.logs({stdout: true, stderr: true});
-            const logData = logs.toString();
+            const waitResult = await container.wait();
+            const endTime = Date.now();
+            const executionTime = (endTime - startTime) / 1000; // Convert milliseconds to seconds
+
+            // Get container stats for memory usage
+            const statsStream = await container.stats({ stream: true });
+            const stats = await new Promise((resolve, reject) => {
+                statsStream.on('data', (data) => {
+                    const parsed = JSON.parse(data.toString());
+                    resolve(parsed);
+                });
+                statsStream.on('error', reject);
+                statsStream.on('end', resolve);
+            });
+
+            const memoryUsage = stats.memory_stats.usage; // Memory usage in bytes
+
+            // Get container logs
+            const output = await container.logs({stdout: true, stderr: true});
+            const logData = output.toString();
 
             // Clean up user-specific directory after sending the response
             fs.rm(userCodePath, { recursive: true, force: true }, (cleanupErr) => {
@@ -69,10 +89,11 @@ exports.submitCode = async (req, res) => {
                 }
             });
 
-            // Remove the container after execution
-            await container.remove();
-
-            res.json({ output: logData });
+            res.json({
+                output: logData,
+                executionTime: `${executionTime} seconds`,
+                memoryUsage: `${memoryUsage} bytes`
+            });
         } catch (error) {
             res.status(500).json({ error: `Docker execution failed: ${error.message}` });
         }
