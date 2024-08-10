@@ -14,24 +14,24 @@ services:
       context: .
       dockerfile: ./docker/Dockerfile.cpp
     volumes:
-      - ./code:/app
-    command: ["bash", "-c", "g++ /app/code.cpp -o /app/code && /app/code"]
+      - /path/to/user_code:/app
+    entrypoint: ["/bin/bash", "-c", "g++ /app/code.cpp -o /app/code && /app/code"]
 
   python-executor:
     build:
       context: .
       dockerfile: ./docker/Dockerfile.python
     volumes:
-      - ./code:/app
-    command: ["python3", "/app/code.py"]
+      - /path/to/user_code:/app
+    entrypoint: ["/usr/bin/python3", "/app/code.py"]
 
   java-executor:
     build:
       context: .
       dockerfile: ./docker/Dockerfile.java
     volumes:
-      - ./code:/app
-    command: ["java", "/app/Code"]
+      - /path/to/user_code:/app
+    entrypoint: ["/bin/bash", "-c", "javac /app/code.java && java -cp /app $(basename /app/code.java .java)"]
 
 volumes:
   mongo-data:
