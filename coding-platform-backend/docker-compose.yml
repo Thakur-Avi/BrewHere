@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  cpp-executor:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.cpp
+    volumes:
+      - ./code:/app
+    command: ["bash", "-c", "g++ /app/code.cpp -o /app/code && /app/code"]
+
+  # python-executor:
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/Dockerfile.python
+  #   volumes:
+  #     - ./code:/app
+  #   command: ["python3", "/app/code.py"]
+
+  # java-executor:
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/Dockerfile.java
+  #   volumes:
+  #     - ./code:/app
+  #   command: ["java", "/app/Code"]
+
+volumes:
+  mongo-data:
