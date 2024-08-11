@@ -7,7 +7,6 @@ const errorHandler = require('./middlewares/errorHandler');
 const rateLimiter = require('./middlewares/rateLimiter');
 const codeRoutes = require('./routes/codeRoutes');
 const authRoutes = require('./routes/authRoutes');
-const contestRoutes = require('./routes/contestRoutes');
 
 // Load environment variables from .env file
 dotenv.config();
@@ -31,7 +30,6 @@ app.get('/', (req, res) => {
 
 // Use routes
 app.use('/api/auth', authRoutes);
-// app.use('/api/contests', contestRoutes);
 app.use('/api/code', codeRoutes);
 
 // Error Handling
