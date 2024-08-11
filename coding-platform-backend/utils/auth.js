@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user'); // Adjust the path as needed
 
 // Function to generate a JWT token
-const generateToken = async (req, res) => {
+const generateToken = async () => {
   try {
     // Create or find a user
     let user = await User.findOne({});
@@ -19,10 +19,9 @@ const generateToken = async (req, res) => {
     );
 
     // Return the generated token to the client
-    res.json({ token });
+    return token;
   } catch (error) {
-    // Handle errors
-    res.status(500).json({ error: 'Failed to generate token' });
+    throw new Error('Failed to generate token');
   }
 };
 

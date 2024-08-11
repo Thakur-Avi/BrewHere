@@ -2,9 +2,10 @@ const path = require('path');
 const fs = require('fs');
 const Docker = require('dockerode');
 const docker = new Docker();
+const CodeSubmission = require('../models/codeSubmission'); // Import the CodeSubmission model
 
 exports.submitCode = async (req, res) => {
-    const { userId, language, code, inputs } = req.body; // Expecting 'inputs' as an array
+    const { userId, language, code, inputs, questionID } = req.body; // Expecting 'inputs' as an array
 
     if (!userId || !language || !code) {
         return res.status(400).json({ error: 'Missing required fields' });
@@ -12,19 +13,17 @@ exports.submitCode = async (req, res) => {
 
     const userCodePath = path.join(__dirname, '../user_code', userId);
     const codeFilePath = path.join(userCodePath, `code.${language}`);
-    
-    // Ensure the user's directory exists
-    if (!fs.existsSync(userCodePath)) {
-        fs.mkdirSync(userCodePath, { recursive: true });
-    }
 
-    // Write the code to a file
-    fs.writeFile(codeFilePath, code, async (err) => {
-        if (err) return res.status(500).json({ error: 'Failed to write code to file' });
+    try {
+        // Ensure the user's directory exists
+        await fs.mkdir(userCodePath, { recursive: true });
+
+        // Write the code to a file
+        await fs.writeFile(codeFilePath, code);
 
         // Write custom inputs to a file
         const inputsFilePath = path.join(userCodePath, 'inputs.txt');
-        fs.writeFileSync(inputsFilePath, inputs.join('\n'));
+        await fs.writeFile(inputsFilePath, inputs.join('\n'));
 
         // Docker container setup
         const containerConfigs = {
@@ -43,63 +42,93 @@ exports.submitCode = async (req, res) => {
         };
 
         const config = containerConfigs[language];
-
         if (!config) {
             return res.status(400).json({ error: 'Unsupported language' });
         }
 
-        try {
-            const container = await docker.createContainer({
-                Image: config.image,
-                Cmd: [config.command],
-                Tty: false,
-                Volumes: { '/app': {} },
-                HostConfig: {
-                    Binds: [`${userCodePath}:/app`]
-                }
+        const container = await docker.createContainer({
+            Image: config.image,
+            Cmd: [config.command],
+            Tty: false,
+            Volumes: { '/app': {} },
+            HostConfig: {
+                Binds: [`${userCodePath}:/app`]
+            }
+        });
+
+        // Record the start time
+        const startTime = Date.now();
+        await container.start();
+
+        // Wait for container to finish execution
+        const waitResult = await container.wait();
+        const endTime = Date.now();
+        const executionTime = (endTime - startTime) / 1000; // Convert milliseconds to seconds
+
+        // Get container stats for memory usage
+        const statsStream = await container.stats({ stream: true });
+        const stats = await new Promise((resolve, reject) => {
+            statsStream.on('data', (data) => {
+                const parsed = JSON.parse(data.toString());
+                resolve(parsed);
             });
+            statsStream.on('error', reject);
+            statsStream.on('end', resolve);
+        });
 
-            // Record the start time
-            const startTime = Date.now();
+        const memoryUsage = stats.memory_stats.usage; // Memory usage in bytes
 
-            await container.start();
+        // Get container logs
+        const output = await container.logs({stdout: true, stderr: true});
+        const logData = output.toString();
 
-            // Wait for container to finish execution
-            const waitResult = await container.wait();
-            const endTime = Date.now();
-            const executionTime = (endTime - startTime) / 1000; // Convert milliseconds to seconds
+        // Remove the container
+        await container.remove({ v: true, force: true });
 
-            // Get container stats for memory usage
-            const statsStream = await container.stats({ stream: true });
-            const stats = await new Promise((resolve, reject) => {
-                statsStream.on('data', (data) => {
-                    const parsed = JSON.parse(data.toString());
-                    resolve(parsed);
-                });
-                statsStream.on('error', reject);
-                statsStream.on('end', resolve);
+        // Store the submission in the database if questionID is present
+        if (questionID) {
+            const codeSubmission = new CodeSubmission({
+                userId,
+                questionId: questionID,
+                language,
+                code,
+                output: logData
             });
-
-            const memoryUsage = stats.memory_stats.usage; // Memory usage in bytes
-
-            // Get container logs
-            const output = await container.logs({stdout: true, stderr: true});
-            const logData = output.toString();
-
-            // Clean up user-specific directory after sending the response
-            fs.rm(userCodePath, { recursive: true, force: true }, (cleanupErr) => {
-                if (cleanupErr) {
-                    console.error(`Failed to clean up user directory: ${cleanupErr.message}`);
-                }
-            });
-
-            res.json({
-                output: logData,
-                executionTime: `${executionTime} seconds`,
-                memoryUsage: `${memoryUsage} bytes`
-            });
-        } catch (error) {
-            res.status(500).json({ error: `Docker execution failed: ${error.message}` });
+            await codeSubmission.save();
         }
-    });
+
+        // Clean up user-specific directory after sending the response
+        await fs.rm(userCodePath, { recursive: true, force: true });
+
+        res.json({
+            output: logData,
+            executionTime: `${executionTime} seconds`,
+            memoryUsage: `${memoryUsage} bytes`
+        });
+    } catch (error) {
+        res.status(500).json({ error: `Docker execution failed: ${error.message}` });
+    }
+};
+
+exports.getCodeSubmissions = async (req, res) => {
+    const { userId, questionId } = req.query;
+    
+    if (!userId || !questionId) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    try {
+        // Fetch code submissions from the database
+        const submissions = await CodeSubmission.find({ userId, questionId });
+
+        // Check if any submissions were found
+        if (submissions.length === 0) {
+            return res.status(404).json({ message: 'No submissions found' });
+        }
+
+        // Send the submissions as a response
+        res.json(submissions);
+    } catch (error) {
+        res.status(500).json({ error: `Failed to fetch submissions: ${error.message}` });
+    }
 };
