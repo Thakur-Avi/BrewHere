@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const Docker = require('dockerode');
 const docker = new Docker();
-const CodeSubmission = require('../models/codeSubmission'); // Import the CodeSubmission model
+const CodeSubmission = require('../models/codeSubmission');
 
 exports.submitCode = async (req, res) => {
     const { userId, language, code, inputs, questionID } = req.body; // Expecting 'inputs' as an array
