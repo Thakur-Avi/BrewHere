@@ -1,0 +1,11 @@
+.input-layout{
+    padding-left: 2%;
+    color:#2887f3;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+.input-layout textarea{
+    height: 95px;
+    width: 300px;
+    background-color:#1e1e1e;
+    color: whitesmoke;
+}
