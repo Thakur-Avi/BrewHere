@@ -1,10 +1,10 @@
 const path = require('path');
 const fs = require('fs');
 const Docker = require('dockerode');
-const docker = new Docker(); // Connect to Docker daemon
+const docker = new Docker();
 
 exports.submitCode = async (req, res) => {
-    const { userId, language, code } = req.body;
+    const { userId, language, code, inputs } = req.body; // Expecting 'inputs' as an array
 
     if (!userId || !language || !code) {
         return res.status(400).json({ error: 'Missing required fields' });
@@ -22,19 +22,23 @@ exports.submitCode = async (req, res) => {
     fs.writeFile(codeFilePath, code, async (err) => {
         if (err) return res.status(500).json({ error: 'Failed to write code to file' });
 
+        // Write custom inputs to a file
+        const inputsFilePath = path.join(userCodePath, 'inputs.txt');
+        fs.writeFileSync(inputsFilePath, inputs.join('\n'));
+
         // Docker container setup
         const containerConfigs = {
             cpp: {
                 image: 'coding-platform-backend-cpp-executor',
-                command: 'g++ /app/code.cpp -o /app/code && /app/code'
+                command: 'g++ /app/code.cpp -o /app/code && /app/code < /app/inputs.txt'
             },
             py: {
                 image: 'coding-platform-backend-python-executor',
-                command: 'python3 /app/code.py'
+                command: 'python3 /app/code.py < /app/inputs.txt'
             },
             java: {
                 image: 'coding-platform-backend-java-executor',
-                command: 'javac /app/code.java && java -cp /app $(basename /app/code.java .java)'
+                command: 'javac /app/code.java && java -cp /app $(basename /app/code.java .java) < /app/inputs.txt'
             }
         };
 

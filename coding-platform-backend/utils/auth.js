@@ -2,22 +2,28 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user'); // Adjust the path as needed
 
 // Function to generate a JWT token
-const generateToken = async () => {
-  // Create or find a user
-  let user = await User.findOne({});
-  if (!user) {
-    user = new User();
-    await user.save();
+const generateToken = async (req, res) => {
+  try {
+    // Create or find a user
+    let user = await User.findOne({});
+    if (!user) {
+      user = new User();
+      await user.save();
+    }
+
+    // Generate a JWT token
+    const token = jwt.sign(
+      { userId: user.userId },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    // Return the generated token to the client
+    res.json({ token });
+  } catch (error) {
+    // Handle errors
+    res.status(500).json({ error: 'Failed to generate token' });
   }
-
-  // Generate a JWT token
-  const token = jwt.sign(
-    { userId: user.userId },
-    process.env.JWT_SECRET,
-    { expiresIn: '1d' } // Token expiration time
-  );
-
-  res.json({ token });
 };
 
 // Middleware to verify JWT token

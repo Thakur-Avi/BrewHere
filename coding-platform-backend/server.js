@@ -5,7 +5,6 @@ const cors = require('cors');
 const logger = require('./middlewares/logger');
 const errorHandler = require('./middlewares/errorHandler');
 const rateLimiter = require('./middlewares/rateLimiter');
-// const authenticateJWT = require('./utils/auth').authenticateJWT;
 const codeRoutes = require('./routes/codeRoutes');
 const authRoutes = require('./routes/authRoutes');
 const contestRoutes = require('./routes/contestRoutes');
