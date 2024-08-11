@@ -31,7 +31,7 @@ app.get('/', (req, res) => {
 
 // Use routes
 app.use('/api/auth', authRoutes);
-app.use('/api/contests', contestRoutes);
+// app.use('/api/contests', contestRoutes);
 app.use('/api/code', codeRoutes);
 
 // Error Handling
