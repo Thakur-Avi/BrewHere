@@ -1,5 +1,11 @@
-export const submitCode = async (submissionData) => {
+export const submitCode = async (props) => {
     try {
+      // const submissionData={
+      //     userId:{props.userid},
+      //     language:"cpp",
+      //     code:{props.code},
+      //     inputs:{props.input}
+      // }
       const response = await fetch('http://localhost:5000/api/code/submit', {
         method: 'POST',
         headers: {
