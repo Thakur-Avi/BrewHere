@@ -1,0 +1,32 @@
+.container-navbar{
+    height: 50px;
+    width: auto;
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+    background-color: #1e1e1e;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    /* margin-bottom: 2%; */
+}
+.logo-navbar{
+    height: 100%;
+    color: rgb(16, 216, 33);
+    margin-left: 5%;
+    font-size: 40px;
+    font-weight: 900;
+}
+.other-navbar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 25%;
+    height: 100%;
+    color: whitesmoke;
+    margin-right: 15%;
+    font-size:20px;
+    font-weight: 600;
+}
+.navbar-ele{
+    color: whitesmoke;
+    text-decoration: none;
+}

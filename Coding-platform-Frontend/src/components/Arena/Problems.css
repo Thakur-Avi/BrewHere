@@ -1,0 +1,31 @@
+.layout-pro{
+    height: auto;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 7%;
+    cursor: pointer;
+}
+.container-pro{
+    height: auto;
+    width:50%;
+    /* display: flex; */
+    /* justify-content: center; */
+    /* align-items: center; */
+}
+table{
+    width: 50%;
+    background-color: #2d2d2d;
+    /* border: 1px solid; */
+    color: whitesmoke;
+}
+th{
+    /* margin-top: 0px; */
+    text-align: left;
+    background-color: #1e1e1e;
+    font-size: larger;
+    padding: 6px;  
+    width:20%; 
+}
+

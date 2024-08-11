@@ -1,0 +1,11 @@
+.inputarena-layout{
+    padding-left: 2%;
+    color:#2887f3;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+.showinput{
+    height: 65px;
+    width: 300px;
+    background-color:#1e1e1e;
+    color: whitesmoke;
+}

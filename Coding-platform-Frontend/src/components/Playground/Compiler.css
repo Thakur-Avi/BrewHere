@@ -1,0 +1,13 @@
+.layout-compiler{
+    background-color: #2d2d2d;
+    height: 100vh;
+    padding-top: 0.2%;
+}
+.edit-compiler{
+    height: 80%;
+    /* background-color: aqua; */
+    display: flex;
+}
+.output-compiler{
+    height: 20%;
+}
