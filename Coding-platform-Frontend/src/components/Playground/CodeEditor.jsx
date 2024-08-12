@@ -4,7 +4,9 @@ import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { useCallback, useState } from "react";
 import propTypes from "prop-types";
-import {submitCode} from "../../api/codeSubmission.jsx";
+// import {submitCode} from "../../api/codeSubmission.jsx";
+// import { submitCode } from "../../api/codeSubmission";
+import CodeSubmit from "../../api/CodeSubmit";
 
 const CodeEditor = ({input}) => {
     const [value1, setValue] = useState(`#include <iostream>\nusing namespace std;\nint main() {\n    cout << "Hello, World!";\n    return 0;\n}`);
@@ -17,8 +19,9 @@ const CodeEditor = ({input}) => {
         setValue(`#include <iostream>\nusing namespace std;\nint main() {\n    cout << "Hello, World!";\n    return 0;\n}`);
     }
     const showoutput=()=>{
-            const uniqueid=localStorage.getItem('authtoken');
-            <submitCode code={value1} input={input} userid={uniqueid} />
+            const uniqueid=localStorage.getItem('authToken');
+            // <CodeSubmit code={value1} input={input} userid={uniqueid} />
+            CodeSubmit({value1, input, uniqueid});
     }
     return (
         <>

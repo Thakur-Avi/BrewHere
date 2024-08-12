@@ -1,11 +1,18 @@
-export const submitCode = async (props) => {
+const CodeSubmit = async (subdata) => {
     try {
-      // const submissionData={
-      //     userId:{props.userid},
-      //     language:"cpp",
-      //     code:{props.code},
-      //     inputs:{props.input}
-      // }
+    //   console.log(code, input, userid);
+    console.log(subdata);
+    const uid = subdata.uniqueid;
+    const code = subdata.value1;
+    const input = subdata.input;
+      const submissionData={
+          userId:{uid},
+          language:"cpp",
+          code:{code},
+          inputs:{input},
+          questionID:null
+      }
+      console.log(submissionData);
       const response = await fetch('http://localhost:5000/api/code/submit', {
         method: 'POST',
         headers: {
@@ -22,3 +29,5 @@ export const submitCode = async (props) => {
       throw error;
     }
 };
+
+export default CodeSubmit;

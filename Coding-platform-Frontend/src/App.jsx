@@ -5,8 +5,6 @@ import Handle from './components/HandleAPI';
 
 function App() {
 
-  
-
   return (
     <>
       <BrowserRouter>

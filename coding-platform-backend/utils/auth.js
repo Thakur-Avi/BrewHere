@@ -27,6 +27,7 @@ const generateToken = async () => {
 
 // Middleware to verify JWT token
 const authenticateJWT = (req, res, next) => {
+  console.log(req.body);
   const token = req.cookies['auth-token'] || req.headers['authorization']?.split(' ')[1];
 
   if (token) {

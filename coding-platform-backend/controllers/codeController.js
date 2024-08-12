@@ -7,10 +7,12 @@ const CodeSubmission = require('../models/codeSubmission');
 exports.submitCode = async (req, res) => {
     const { userId, language, code, inputs, questionID } = req.body; // Expecting 'inputs' as an array
 
+    console.log(req.body);
+
     if (!userId || !language || !code) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
-
+    
     const userCodePath = path.join(__dirname, '../user_code', userId);
     const codeFilePath = path.join(userCodePath, `code.${language}`);
 

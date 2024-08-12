@@ -4,7 +4,7 @@ const codeController = require('../controllers/codeController');
 const { authenticateJWT } = require('../utils/auth');
 const sanitizeCode = require('../middlewares/sanitizeCode');
 
-router.post('/submit', authenticateJWT, sanitizeCode, codeController.submitCode);
-router.get('/submissions', authenticateJWT, codeController.getCodeSubmissions);
+router.post('/submit', codeController.submitCode);
+router.get('/submissions', codeController.getCodeSubmissions);
 
 module.exports = router;
